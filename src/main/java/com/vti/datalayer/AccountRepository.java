@@ -4,11 +4,14 @@ import java.util.List;
 
 import org.hibernate.Session;
 import org.hibernate.query.Query;
+import org.springframework.stereotype.Repository;
 
 import com.vti.entity.Account;
 import com.vti.entity.fillter.AccountFillter;
+import com.vti.entity.form.CreateAccountForm;
 import com.vti.untils.HibernateUntil;
 
+@Repository
 public class AccountRepository {
 
 	public List<Account> getAll(int page, int size, AccountFillter fillter) {
@@ -64,6 +67,38 @@ public class AccountRepository {
 			}
 		}
 		
+	}
+
+	public Account updateAccount(int id, CreateAccountForm account) {
+		Session session = null;
+
+		try {
+			session = HibernateUntil.getFactory().openSession();
+			Account accountUpdate = session.get(Account.class, id);
+			if (accountUpdate == null) {
+				return null; // khong tim thay id thi return null
+			}
+			
+			session.beginTransaction();
+			
+			if (account.getEmail() != null) {
+				accountUpdate.setEmail(account.getEmail());
+			}
+			if(account.getFullname() != null) {
+				accountUpdate.setFullName(account.getFullname());
+			}
+			if (account.getUsername() != null) {
+				accountUpdate.setUsername(account.getUsername());
+			}
+			
+			session.save(accountUpdate);
+			session.getTransaction().commit();
+			return accountUpdate;
+		}finally {
+			if (session != null) {
+				session.close();
+			}
+		}
 	}
 
 }
